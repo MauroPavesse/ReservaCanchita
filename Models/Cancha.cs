@@ -9,5 +9,7 @@ public class Cancha
     [Required]
     public string NombreCancha { get; set; } = string.Empty;
 
-    public ICollection<Horario> Horarios = new List<Horario>();
+    public ICollection<HorarioBase> HorariosBase { get; set; } = new List<HorarioBase>();
+    public ICollection<HorarioDisponible> HorariosDisponibles { get; set; } = new List<HorarioDisponible>();
+    public ICollection<CanchaSemana> CanchasSemanas { get; set; } = new List<CanchaSemana>();
 }

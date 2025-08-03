@@ -16,7 +16,9 @@ public class Reserva
     public DateTime Fecha { get; set; }
 
     [Required]
-    public int HorarioId { get; set; }
+    public int HorarioDisponibleId { get; set; }
+
+    public HorarioDisponible HorarioDisponible { get; set; } = new HorarioDisponible();
 
     public int Estado { get; set; }
 }

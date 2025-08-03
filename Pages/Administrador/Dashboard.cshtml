@@ -1,0 +1,175 @@
+﻿@page
+@model ReservaCanchita.Pages.Administrador.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+    //Layout = "~/Pages/Shared/_LayoutAdmin.cshtml";
+}
+
+<button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalAgregarCancha">
+    Agregar Cancha
+</button>
+
+@foreach (var cancha in Model.Canchas)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h4>@cancha.NombreCancha</h4>
+
+            @if (cancha.HorariosBase.Any())
+            {
+                <table class="table mt-3">
+                    <thead>
+                        <tr>
+                            <th>Desde</th>
+                            <th>Hasta</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var horario in cancha.HorariosBase.OrderBy(x => x.HoraInicio))
+                        {
+                            <tr>
+                                <td>@horario.HoraInicio</td>
+                                <td>@horario.HoraFin</td>
+                                <td class="text-end">
+                                    <form method="post" asp-page-handler="EliminarHorarioBase" style="display:inline;">
+                                        <input type="hidden" name="HorarioBaseId" value="@horario.Id" />
+                                        <input type="hidden" name="CanchaId" value="@cancha.Id" />
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-muted">No hay horarios configurados.</p>
+            }
+
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalAgregarHorario_@cancha.Id">
+                Agregar Horario Base
+            </button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDiasSemana_@cancha.Id">
+                Gestionar Horarios
+            </button>
+            <form method="post" asp-page-handler="EliminarCancha" style="display:inline;">
+                <input type="hidden" name="CanchaId" value="@cancha.Id" />
+                <button type="submit" class="btn btn-outline-danger btn-sm float-end" title="Eliminar cancha">
+                    <i class="bi bi-trash"></i> Eliminar Cancha
+                </button>
+            </form>
+            
+            <div class="modal fade" id="modalDiasSemana_@cancha.Id" tabindex="-1" aria-labelledby="labelDiasSemana_@cancha.Id" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" asp-page-handler="AsignarDiasSemana">
+                            <input type="hidden" name="CanchaId" value="@cancha.Id" />
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="labelDiasSemana_@cancha.Id">Seleccionar días para @cancha.NombreCancha</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                @{
+                                    var diasSemana = new[] { "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" };
+                                    for (int i = 0; i < diasSemana.Length; i++)
+                                    {
+                                        var estaActivo = cancha.CanchasSemanas.Any(h => h.DiaSemana == i && h.Activo == 1);
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="DiasSeleccionados" value="@i" id="dia_@i@cancha.Id" @(estaActivo ? "checked" : "") />
+                                            <label class="form-check-label" for="dia_@i@cancha.Id">@diasSemana[i]</label>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="modalAgregarHorario_@cancha.Id" tabindex="-1" aria-labelledby="modalLabel_@cancha.Id" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" asp-page-handler="AgregarHorarioBase">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel_@cancha.Id">Agregar Horario Base - @cancha.NombreCancha</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="CanchaId" value="@cancha.Id" />
+
+                        <div class="mb-3">
+                            <label for="HoraInicio_@cancha.Id" class="form-label">Hora Inicio</label>
+                            <input type="time" class="form-control" name="HoraInicio" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="HoraFin_@cancha.Id" class="form-label">Hora Fin</label>
+                            <input type="time" class="form-control" name="HoraFin" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="modal fase" id="modalAgregarCancha">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="AgregarCancha">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar nuevo cancha</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre identificatorio</label>
+                        <input type="text" class="form-control" name="NombreCancha" id="NombreCanchaId" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.modal').on('shown.bs.modal', function () {
+                $(this).find('input[name="NombreCanchaId"]').focus();
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: '@Model.MensajeError'
+            });
+        </script>
+    }
+}

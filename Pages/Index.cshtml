@@ -1,10 +1,199 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Reservas";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    
+    
 </div>
+
+<h3>Canchitas para hoy</h3>
+@if (Model.HorariosDisponibles.Where(x => x.Fecha.Date == DateTime.Now.Date).Any())
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            @foreach (var horariosPorCancha in Model.HorariosDisponibles.Where(x => x.Fecha.Date == DateTime.Now.Date).GroupBy(x => x.CanchaId))
+            {
+                <div class="d-flex flex-wrap">
+                    @foreach (var horarioDisponible in horariosPorCancha.OrderBy(x => x.HoraInicio))
+                    {
+                        @if (horarioDisponible.EstaReservado)
+                        {
+                            <button type="button" class="btn btn-outline-danger me-2 mb-2" data-bs-toggle="modal" data-bs-target="#modalHorarioDisponible_@horarioDisponible.Id">
+                                @horarioDisponible.HoraInicio.ToString(@"hh\:mm") - @horarioDisponible.HoraFin.ToString(@"hh\:mm")
+                            </button>
+                            <div class="modal fade" id="modalHorarioDisponible_@horarioDisponible.Id" tabindex="-1" aria-labelledby="labelHorariosDisponible_@horarioDisponible.Id" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form method="post" asp-page-handler="EliminarReserva">
+                                            <input type="hidden" name="HorarioDisponibleId" value="@horarioDisponible.Id" />
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="labelHorariosDisponible_@horarioDisponible.Id">Complete los datos correctamente para eliminar la reserva</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Ingrese el telefono de contacto usado en la reserva</label>
+                                                    <input type="text" class="form-control" name="Telefono" id="TelefonoId" required />
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary">Eliminar reserva</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-outline-primary me-2 mb-2" data-bs-toggle="modal" data-bs-target="#modalHorarioDisponible_@horarioDisponible.Id">
+                                @horarioDisponible.HoraInicio.ToString(@"hh\:mm") - @horarioDisponible.HoraFin.ToString(@"hh\:mm")
+                            </button>
+                            <div class="modal fade" id="modalHorarioDisponible_@horarioDisponible.Id" tabindex="-1" aria-labelledby="labelHorariosDisponible_@horarioDisponible.Id" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form method="post" asp-page-handler="ReservarCancha">
+                                            <input type="hidden" name="HorarioDisponibleId" value="@horarioDisponible.Id" />
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="labelHorariosDisponible_@horarioDisponible.Id">Complete los datos para reservar</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Ingrese su nombre</label>
+                                                    <input type="text" class="form-control" name="NombreCliente" id="NombreClienteId" required />
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Ingrese su telefono de contacto</label>
+                                                    <input type="text" class="form-control" name="Telefono" id="TelefonoId" required />
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary">Reservar</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+else{
+    <p>No hay horarios para reservar hoy</p>
+}
+
+<h3>Canchitas en los próximas días</h3>
+
+<ul class="nav nav-tabs mb-3" id="semanaTabs">
+    @for (int i = 1; i <= 7; i++)
+    {
+        var fecha = DateTime.Today.AddDays(i);
+        var index = i - 1; // para usar en id/tab
+        <li class="nav-item">
+            <a class="nav-link @(i == 1 ? "active" : "")" data-bs-toggle="tab" href="#dia_@index">
+                @fecha.ToString("dddd dd", new System.Globalization.CultureInfo("es-ES"))
+            </a>
+        </li>
+    }
+</ul>
+
+<div class="tab-content">
+    @for (int i = 1; i <= 7; i++)
+    {
+        var fecha = DateTime.Today.AddDays(i);
+        var horariosDelDia = Model.HorariosDisponibles
+        .Where(h => h.Fecha.Date == fecha.Date);
+        var index = i - 1;
+
+        <div class="tab-pane fade @(i == 1 ? "show active" : "")" id="dia_@index">
+            @if (horariosDelDia.Any())
+            {
+                @foreach (var canchaGroup in horariosDelDia.GroupBy(x => x.CanchaId))
+                {
+                    <h5>@canchaGroup.First().Cancha.NombreCancha</h5>
+                    <div class="d-flex flex-wrap mb-4">
+                        @foreach (var horarioDisponible in canchaGroup.OrderBy(x => x.HoraInicio))
+                        {
+                            @if (horarioDisponible.EstaReservado)
+                            {
+                                <button type="button" class="btn btn-outline-danger me-2 mb-2" data-bs-toggle="modal" data-bs-target="#modalHorarioDisponible_@horarioDisponible.Id">
+                                    @horarioDisponible.HoraInicio.ToString(@"hh\:mm") - @horarioDisponible.HoraFin.ToString(@"hh\:mm")
+                                </button>
+                                <div class="modal fade" id="modalHorarioDisponible_@horarioDisponible.Id" tabindex="-1" aria-labelledby="labelHorariosDisponible_@horarioDisponible.Id" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form method="post" asp-page-handler="EliminarReserva">
+                                                <input type="hidden" name="HorarioDisponibleId" value="@horarioDisponible.Id" />
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="labelHorariosDisponible_@horarioDisponible.Id">Complete los datos correctamente para eliminar la reserva</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Ingrese el telefono de contacto usado en la reserva</label>
+                                                        <input type="text" class="form-control" name="Telefono" id="TelefonoId" required />
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-primary">Eliminar reserva</button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-outline-primary me-2 mb-2" data-bs-toggle="modal" data-bs-target="#modalHorarioDisponible_@horarioDisponible.Id">
+                                    @horarioDisponible.HoraInicio.ToString(@"hh\:mm") - @horarioDisponible.HoraFin.ToString(@"hh\:mm")
+                                </button>
+                                <div class="modal fade" id="modalHorarioDisponible_@horarioDisponible.Id" tabindex="-1" aria-labelledby="labelHorariosDisponible_@horarioDisponible.Id" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form method="post" asp-page-handler="ReservarCancha">
+                                                <input type="hidden" name="HorarioDisponibleId" value="@horarioDisponible.Id" />
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="labelHorariosDisponible_@horarioDisponible.Id">Complete los datos para reservar</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Ingrese su nombre</label>
+                                                        <input type="text" class="form-control" name="NombreCliente" id="NombreClienteId" required />
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Ingrese su telefono de contacto</label>
+                                                        <input type="text" class="form-control" name="Telefono" id="TelefonoId" required />
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-primary">Reservar</button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted">No hay horarios disponibles para este día.</p>
+            }
+        </div>
+    }
+</div>
+

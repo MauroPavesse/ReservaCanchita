@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReservaCanchita.Data;
 
@@ -10,9 +11,11 @@ using ReservaCanchita.Data;
 namespace ReservaCanchita.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250731163843_ArreglosTablas")]
+    partial class ArreglosTablas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,28 +35,6 @@ namespace ReservaCanchita.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Canchas");
-                });
-
-            modelBuilder.Entity("ReservaCanchita.Models.CanchaSemana", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("Activo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CanchaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DiaSemana")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CanchaId");
-
-                    b.ToTable("CanchasSemanas");
                 });
 
             modelBuilder.Entity("ReservaCanchita.Models.Cuenta", b =>
@@ -159,17 +140,6 @@ namespace ReservaCanchita.Migrations
                     b.ToTable("Reservas");
                 });
 
-            modelBuilder.Entity("ReservaCanchita.Models.CanchaSemana", b =>
-                {
-                    b.HasOne("ReservaCanchita.Models.Cancha", "Cancha")
-                        .WithMany("CanchasSemanas")
-                        .HasForeignKey("CanchaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cancha");
-                });
-
             modelBuilder.Entity("ReservaCanchita.Models.HorarioBase", b =>
                 {
                     b.HasOne("ReservaCanchita.Models.Cancha", "Cancha")
@@ -205,8 +175,6 @@ namespace ReservaCanchita.Migrations
 
             modelBuilder.Entity("ReservaCanchita.Models.Cancha", b =>
                 {
-                    b.Navigation("CanchasSemanas");
-
                     b.Navigation("HorariosBase");
 
                     b.Navigation("HorariosDisponibles");
