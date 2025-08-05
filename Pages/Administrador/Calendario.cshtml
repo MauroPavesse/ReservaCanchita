@@ -1,0 +1,154 @@
+﻿@page
+@model ReservaCanchita.Pages.Administrador.CalendarioModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    <div id="calendar"></div>
+
+    <div class="modal fade" id="modalDia" tabindex="-1" aria-labelledby="modalDiaLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDiaLabel">Detalles del día</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body" id="contenidoModalDia">
+                    <!-- Aquí se mostrará la información del día seleccionado -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="confirmarEliminarHorariosDia()">Eliminar horarios</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalConfirmarEliminar" tabindex="-1" aria-labelledby="modalConfirmarEliminarLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalConfirmarEliminarLabel">¿Eliminar reserva?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar esta reserva?
+                </div>
+                <div class="modal-footer">
+                    <form method="post" id="formEliminarReserva" asp-page-handler="EliminarReserva">
+                        <input type="hidden" name="horarioDisponibleId" id="horarioDisponibleId" />
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalConfirmarEliminarDia" tabindex="-1" aria-labelledby="modalConfirmarEliminarDiaLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalConfirmarEliminarDiaLabel">¿Eliminar todas las reservas del día?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar todos los horarios para este día?
+                </div>
+                <div class="modal-footer">
+                    <form method="post" asp-page-handler="EliminarHorariosDia">
+                        <input type="hidden" name="FechaAEliminar" id="fechaAEliminar" />
+                        <button type="submit" class="btn btn-danger">Sí, eliminar todos</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #calendar {
+            max-width: 1000px;
+            margin: 40px auto;
+        }
+
+        .fc-day-today {
+            background-color: transparent !important;
+            border: 2px solid blue !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const calendarEl = document.getElementById('calendar');
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                events: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.EventosCalendario)),
+                dateClick: function(info) {
+                    const fecha = info.dateStr;
+                    fechaSeleccionada = fecha;
+                    fetch(`/Administrador/Calendario?handler=HorariosPorFecha&fecha=${fecha}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            let contenido = `<h6>Horarios disponibles para <strong>${fecha}</strong></h6>`;
+                            data.forEach(cancha => {
+                                contenido += `<div class="mb-2"><strong>${cancha.cancha}</strong></div><div class="d-flex flex-wrap">`;
+
+                                cancha.horarios.forEach(horario => {
+                                    if(horario.reservado){
+                                        contenido += `
+                                            <button type="button" class="btn btn-outline-danger me-2 mb-2"
+                                                onclick="mostrarConfirmacionEliminar(${horario.id})">
+                                                ${horario.horaInicio} - ${horario.horaFin}
+                                            </button>
+                                        `;
+                                    }
+                                    else{
+                                        contenido += `
+                                            <button type="button" class="btn btn-outline-primary me-2 mb-2">
+                                                ${horario.horaInicio} - ${horario.horaFin}
+                                            </button>
+                                        `;
+                                    }
+                                });
+
+                                contenido += `</div>`;
+                            });
+
+                            document.getElementById("contenidoModalDia").innerHTML = contenido;
+
+                            const modal = new bootstrap.Modal(document.getElementById('modalDia'));
+                            modal.show();
+                        });
+                }
+
+            });
+
+            calendar.render();
+        });
+
+        function mostrarConfirmacionEliminar(id) {
+            document.getElementById('horarioDisponibleId').value = id;
+
+            const modal = new bootstrap.Modal(document.getElementById('modalConfirmarEliminar'));
+            modal.show();
+        }
+
+        let fechaSeleccionada = null;
+
+        function confirmarEliminarHorariosDia() {
+            if (!fechaSeleccionada) return;
+
+            document.getElementById("fechaAEliminar").value = fechaSeleccionada;
+
+            const modal = new bootstrap.Modal(document.getElementById("modalConfirmarEliminarDia"));
+            modal.show();
+        }
+    </script>
+}
+

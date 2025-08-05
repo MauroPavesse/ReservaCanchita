@@ -2,7 +2,6 @@
 @model ReservaCanchita.Pages.Administrador.DashboardModel
 @{
     ViewData["Title"] = "Dashboard";
-    //Layout = "~/Pages/Shared/_LayoutAdmin.cshtml";
 }
 
 <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalAgregarCancha">
@@ -32,7 +31,7 @@
                                 <td>@horario.HoraInicio</td>
                                 <td>@horario.HoraFin</td>
                                 <td class="text-end">
-                                    <form method="post" asp-page-handler="EliminarHorarioBase" style="display:inline;">
+                                    <form method="post" asp-page-handler="EliminarHorarioBase" class="form-eliminar-horario" style="display:inline;">
                                         <input type="hidden" name="HorarioBaseId" value="@horario.Id" />
                                         <input type="hidden" name="CanchaId" value="@cancha.Id" />
                                         <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
@@ -56,9 +55,9 @@
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDiasSemana_@cancha.Id">
                 Gestionar Horarios
             </button>
-            <form method="post" asp-page-handler="EliminarCancha" style="display:inline;">
+            <form method="post" asp-page-handler="EliminarCancha" class="form-eliminar-cancha" style="display:inline;">
                 <input type="hidden" name="CanchaId" value="@cancha.Id" />
-                <button type="submit" class="btn btn-outline-danger btn-sm float-end" title="Eliminar cancha">
+                <button type="submit" class="btn btn-outline-danger btn-sm float-end btn-eliminar-cancha" title="Eliminar cancha">
                     <i class="bi bi-trash"></i> Eliminar Cancha
                 </button>
             </form>
@@ -66,7 +65,7 @@
             <div class="modal fade" id="modalDiasSemana_@cancha.Id" tabindex="-1" aria-labelledby="labelDiasSemana_@cancha.Id" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="post" asp-page-handler="AsignarDiasSemana">
+                        <form method="post" asp-page-handler="AsignarDiasSemana" class="form-guardar-dias-semana">
                             <input type="hidden" name="CanchaId" value="@cancha.Id" />
                             <div class="modal-header">
                                 <h5 class="modal-title" id="labelDiasSemana_@cancha.Id">Seleccionar días para @cancha.NombreCancha</h5>
@@ -151,6 +150,9 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
     <script>
         $(document).ready(function () {
             $('.modal').on('shown.bs.modal', function () {
@@ -158,9 +160,6 @@
             });
         });
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
     @if (!string.IsNullOrEmpty(Model.MensajeError))
     {
@@ -172,4 +171,70 @@
             });
         </script>
     }
+
+    <script>
+        document.querySelectorAll('.form-eliminar-cancha').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Detiene el envío del formulario
+
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción eliminará la cancha y no se puede deshacer.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit(); // Envía el formulario si confirma
+                    }
+                });
+            });
+        });
+
+        document.querySelectorAll('.form-eliminar-horario').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Detiene el envío del formulario
+
+                Swal.fire({
+                    title: '¿Eliminar horario?',
+                    text: "Esta acción eliminará el horario base seleccionado.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit(); // Envía el formulario si confirma
+                    }
+                });
+            });
+        });
+
+        document.querySelectorAll('.form-guardar-dias-semana').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Evita el envío inmediato
+
+                Swal.fire({
+                    title: '¿Guardar cambios?',
+                    text: 'Los cambios afectarán las reservas desde hoy en adelante. ¿Deseas continuar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: 'Sí, guardar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit(); // Enviar el formulario si se confirma
+                    }
+                });
+            });
+        });
+    </script>
+
 }
