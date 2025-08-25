@@ -99,5 +99,19 @@ namespace ReservaCanchita.Pages.Administrador
 
             return RedirectToPage();
         }
+
+        public async Task<JsonResult> OnGetDetalleReservaAsync(int id)
+        {
+            var horario = await _context.HorariosDisponibles
+                .Include(h => h.Reserva)
+                .Where(h => h.Id == id)
+                .FirstAsync();
+
+            return new JsonResult(new
+            {
+                Cliente = horario.Reserva!.NombreCliente,
+                Telefono = horario.Reserva.Telefono
+            });
+        }
     }
 }

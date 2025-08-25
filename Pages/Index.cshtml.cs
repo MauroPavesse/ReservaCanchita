@@ -18,8 +18,11 @@ namespace ReservaCanchita.Pages
         }
 
         public List<HorarioDisponible> HorariosDisponibles { get; set; } = new List<HorarioDisponible>();
+        public bool MuestraValorReserva { get; set; } = false;
+        public string ValorReserva { get; set; } = string.Empty;
         [TempData]
         public string MensajeError { get; set; } = string.Empty;
+        
 
         public async Task OnGetAsync()
         {
@@ -27,6 +30,10 @@ namespace ReservaCanchita.Pages
             HorariosDisponibles = await _context.HorariosDisponibles
                 .Where(x => x.Fecha.Date >= DateTime.Now.Date)
                 .ToListAsync();
+
+            var configuraciones = await _context.Configuraciones.Where(x => x.Campo == "MuestraValorReserva" || x.Campo == "ValorReserva").ToArrayAsync();
+            MuestraValorReserva = configuraciones.First(x => x.Campo == "MuestraValorReserva").ValorNumerico == 1;
+            ValorReserva = configuraciones.First(x => x.Campo == "ValorReserva").ValorNumerico.ToString("c");
         }
 
         public async Task<IActionResult> OnPostReservarCanchaAsync(int HorarioDisponibleId, string NombreCliente, string Telefono)

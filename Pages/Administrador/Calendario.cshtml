@@ -132,12 +132,38 @@
             calendar.render();
         });
 
+        // function mostrarConfirmacionEliminar(id) {
+        //     document.getElementById('horarioDisponibleId').value = id;
+
+        //     const modal = new bootstrap.Modal(document.getElementById('modalConfirmarEliminar'));
+        //     modal.show();
+        // }
+
         function mostrarConfirmacionEliminar(id) {
             document.getElementById('horarioDisponibleId').value = id;
 
-            const modal = new bootstrap.Modal(document.getElementById('modalConfirmarEliminar'));
-            modal.show();
+            fetch(`/Administrador/Calendario?handler=DetalleReserva&id=${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    const contenido = `
+                        <p><strong>Reservado por:</strong> ${data.cliente} (${data.telefono})</p>
+                        <p>¿Estás seguro de que deseas eliminar esta reserva?</p>
+                    `;
+                    document.querySelector('#modalConfirmarEliminar .modal-body').innerHTML = contenido;
+
+                    const modal = new bootstrap.Modal(document.getElementById('modalConfirmarEliminar'));
+                    modal.show();
+                })
+                .catch(() => {
+                    document.querySelector('#modalConfirmarEliminar .modal-body').innerHTML = `
+                        <p class="text-danger">No se pudo obtener la información de la reserva.</p>
+                    `;
+                    const modal = new bootstrap.Modal(document.getElementById('modalConfirmarEliminar'));
+                    modal.show();
+                });
         }
+
 
         let fechaSeleccionada = null;
 

@@ -197,6 +197,11 @@ else{
     }
 </div>
 
+@if (Model.MuestraValorReserva)
+{
+    <p>El valor de la reserva por cancha es de @Model.ValorReserva</p>
+}
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
