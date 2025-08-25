@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ReservaCanchita.Data;
+using ReservaCanchita.Services.Configuraciones;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,13 +16,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddScoped<ConfiguracionService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    context.Database.Migrate();
+    ReservaCanchita.Data.DbInitializer.Seed(context);
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

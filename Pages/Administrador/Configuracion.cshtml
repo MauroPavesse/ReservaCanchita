@@ -1,0 +1,59 @@
+﻿@page
+@model ReservaCanchita.Pages.Administrador.ConfiguracionModel
+@{
+    ViewData["Title"] = "Configuracion";
+}
+
+<h2>Configuración</h2>
+
+<form method="post">
+    <div>
+        <label>Nombre de la empresa:</label>
+        <input asp-for="NombreEmpresa" class="form-control" />
+    </div>
+
+    <div>
+        <label>Número de contacto:</label>
+        <input asp-for="NumeroContacto" class="form-control" />
+    </div>
+
+    <div>
+        <label>
+            <input type="checkbox" asp-for="MuestraValorReserva" id="reservaCheckbox" />
+            Mostrar importe de reserva
+        </label>
+        <input asp-for="ValorReserva" class="form-control w-25" id="reservaInput" type="number" min="0" />
+    </div>
+
+    <div>
+        <label>
+            <input type="checkbox" asp-for="TrabajaConToleranciaCancelarReserva" id="numeroExtraCheckbox" />
+            Trabaja con horas de tolerancia al cancelar turno
+        </label>
+        <input asp-for="HoraToleranciaCancelarReserva" class="form-control w-25" id="numeroExtraInput" type="number" min="0" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Guardar configuración</button>
+</form>
+
+@section Scripts {
+    <script>
+        function toggleInput(checkboxId, inputId) {
+            const checkbox = document.getElementById(checkboxId);
+            const input = document.getElementById(inputId);
+            input.disabled = !checkbox.checked;
+        }
+
+        document.getElementById('reservaCheckbox').addEventListener('change', () => {
+            toggleInput('reservaCheckbox', 'reservaInput');
+        });
+
+        document.getElementById('numeroExtraCheckbox').addEventListener('change', () => {
+            toggleInput('numeroExtraCheckbox', 'numeroExtraInput');
+        });
+
+        // Inicializar estado en carga
+        toggleInput('reservaCheckbox', 'reservaInput');
+        toggleInput('numeroExtraCheckbox', 'numeroExtraInput');
+    </script>
+}

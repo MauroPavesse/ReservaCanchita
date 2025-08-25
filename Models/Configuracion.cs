@@ -1,9 +1,12 @@
-﻿namespace ReservaCanchita.Models;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace ReservaCanchita.Models;
 
 public class Configuracion
 {
     public int Id { get; set; }
     public string Campo { get; set; } = string.Empty;
     public string ValorString { get; set; } = string.Empty;
+    [Precision(10, 2)]
     public decimal ValorNumerico { get; set; }
 }

@@ -14,4 +14,5 @@ public class AppDbContext : DbContext
     public DbSet<HorarioDisponible> HorariosDisponibles { get; set; }
     public DbSet<Reserva> Reservas { get; set; }
     public DbSet<CanchaSemana> CanchasSemanas { get; set; }
+    public DbSet<Configuracion> Configuraciones { get; set; }
 }
