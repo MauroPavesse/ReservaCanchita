@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ReservaCanchita.Data;
 using ReservaCanchita.Models;
+using ReservaCanchita.Services.WhatsApp;
 
 namespace ReservaCanchita.Pages
 {
@@ -10,11 +11,13 @@ namespace ReservaCanchita.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly AppDbContext _context;
+        private readonly WhatsAppService _whatsapp;
 
-        public IndexModel(ILogger<IndexModel> logger, AppDbContext context)
+        public IndexModel(ILogger<IndexModel> logger, AppDbContext context, WhatsAppService whatsapp)
         {
             _logger = logger;
             _context = context;
+            _whatsapp = whatsapp;
         }
 
         public List<HorarioDisponible> HorariosDisponibles { get; set; } = new List<HorarioDisponible>();
@@ -57,6 +60,14 @@ namespace ReservaCanchita.Pages
             horarioDisponible.EstaReservado = true;
 
             await _context.SaveChangesAsync();
+
+            string fecha = $"{horarioDisponible.Fecha:dd:MM:yy}{horarioDisponible.HoraInicio}";
+            var enviado = await _whatsapp.SendReservaTemplateAsync(Telefono, NombreCliente, fecha);
+
+            if (enviado)
+                TempData["Success"] = "Reserva confirmada y mensaje enviado por WhatsApp.";
+            else
+                MensajeError = "Reserva confirmada pero no se pudo enviar el mensaje.";
 
             return RedirectToPage();
         }
