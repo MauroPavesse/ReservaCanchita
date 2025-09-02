@@ -1,6 +1,8 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using ReservaCanchita.Data;
 
 namespace ReservaCanchita.Services.WhatsApp
 {
@@ -9,12 +11,14 @@ namespace ReservaCanchita.Services.WhatsApp
         private readonly HttpClient _httpClient;
         private readonly string _phoneNumberId;
         private readonly string _accessToken;
+        private readonly AppDbContext _context;
 
-        public WhatsAppService(HttpClient httpClient, IConfiguration config)
+        public WhatsAppService(HttpClient httpClient, IConfiguration config, AppDbContext context)
         {
             _httpClient = httpClient;
             _phoneNumberId = config["WhatsApp:PhoneNumberId"]!;
             _accessToken = config["WhatsApp:AccessToken"]!;
+            _context = context;
         }
 
         public async Task<bool> SendMessageAsync(string to, string message)
@@ -44,7 +48,7 @@ namespace ReservaCanchita.Services.WhatsApp
             var payload = new
             {
                 messaging_product = "whatsapp",
-                to = to, // Número completo ej: "5493511234567"
+                to = to,
                 type = "template",
                 template = new
                 {
@@ -76,14 +80,26 @@ namespace ReservaCanchita.Services.WhatsApp
             return response.IsSuccessStatusCode;
         }
 
-        public async Task ConfirmarReservaAsync()
+        public async Task ConfirmarReservaAsync(string? from)
         {
-
+            var reserva = await _context.Reservas.FirstAsync(x => x.Estado == 2 && x.Telefono == from && x.Fecha.Date == DateTime.Now.Date);
+            reserva.Estado = 1;
+            _context.Reservas.Update(reserva);
+            await _context.SaveChangesAsync();
+            await SendMessageAsync(from!, "✅ Tu reserva fue confirmada.");
         }
 
-        public async Task CancelarReservaAsync()
+        public async Task CancelarReservaAsync(string? from)
         {
+            var reserva = await _context.Reservas.FirstOrDefaultAsync(x => x.Estado == 2 && x.Telefono == from && x.Fecha.Date == DateTime.Now.Date);
 
+            if (reserva != null)
+            {
+                reserva.Estado = 3;
+                _context.Reservas.Update(reserva);
+                await _context.SaveChangesAsync();
+                await SendMessageAsync(from!, "❌ Tu reserva fue cancelada.");
+            }
         }
     }
 }

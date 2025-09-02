@@ -33,6 +33,16 @@
         <input asp-for="HoraToleranciaCancelarReserva" class="form-control w-25" id="numeroExtraInput" type="number" min="0" />
     </div>
 
+    @if (@Model.VersionWhatsApp)
+    {
+        <div>
+            <label>
+                <input type="checkbox" asp-for="TrabajaConWhatsApp" id="whatsAppCheckbox" />
+                Trabaja con WhatsApp
+            </label>
+        </div>
+    }
+
     <button type="submit" class="btn btn-primary mt-2">Guardar configuración</button>
 </form>
 
@@ -50,6 +60,10 @@
 
         document.getElementById('numeroExtraCheckbox').addEventListener('change', () => {
             toggleInput('numeroExtraCheckbox', 'numeroExtraInput');
+        });
+
+        document.getElementById('whatsAppCheckbox').addEventListener('change', () => {
+            toggleInput('whatsAppCheckbox');
         });
 
         // Inicializar estado en carga

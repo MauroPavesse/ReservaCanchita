@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ReservaCanchita.Data;
+using ReservaCanchita.Migrations;
 using ReservaCanchita.Models;
 using ReservaCanchita.Services.WhatsApp;
 
@@ -25,11 +26,14 @@ namespace ReservaCanchita.Pages
         public string ValorReserva { get; set; } = string.Empty;
         [TempData]
         public string MensajeError { get; set; } = string.Empty;
-        
+        [TempData]
+        public string MensajeSuccess { get; set; } = string.Empty;
 
         public async Task OnGetAsync()
         {
             var _ = MensajeError;
+            var __ = MensajeSuccess;
+
             HorariosDisponibles = await _context.HorariosDisponibles
                 .Where(x => x.Fecha.Date >= DateTime.Now.Date)
                 .ToListAsync();
@@ -37,6 +41,26 @@ namespace ReservaCanchita.Pages
             var configuraciones = await _context.Configuraciones.Where(x => x.Campo == "MuestraValorReserva" || x.Campo == "ValorReserva").ToArrayAsync();
             MuestraValorReserva = configuraciones.First(x => x.Campo == "MuestraValorReserva").ValorNumerico == 1;
             ValorReserva = configuraciones.First(x => x.Campo == "ValorReserva").ValorNumerico.ToString("c");
+        }
+
+        private string NormalizarTelefono(string telefonoIngresado)
+        {
+            var limpio = new string(telefonoIngresado.Where(char.IsDigit).ToArray());
+
+            if (string.IsNullOrEmpty(limpio))
+                return string.Empty;
+
+            if (limpio.StartsWith("549"))
+            {
+                return limpio;
+            }
+
+            if (limpio.StartsWith("54"))
+            {
+                return "549" + limpio.Substring(2);
+            }
+
+            return "549" + limpio;
         }
 
         public async Task<IActionResult> OnPostReservarCanchaAsync(int HorarioDisponibleId, string NombreCliente, string Telefono)
@@ -48,26 +72,44 @@ namespace ReservaCanchita.Pages
                 return RedirectToPage();
             }
 
-            _context.Reservas.Add(new Reserva()
+            if (!Telefono.StartsWith("22"))
             {
-                NombreCliente = NombreCliente,
-                Telefono = Telefono,
-                Fecha = DateTime.Now,
-                Estado = 1,
-                HorarioDisponible = horarioDisponible
-            });
+                MensajeError = "El numero de telefono ingresado no tiene el formato correcto.";
+                return RedirectToPage();
+            }
 
-            horarioDisponible.EstaReservado = true;
+            Telefono = NormalizarTelefono(Telefono);
 
-            await _context.SaveChangesAsync();
+            var configuraciones = await _context.Configuraciones.Where(x => x.Campo == "TrabajaConWhatsapp").ToArrayAsync();
+            var trabajaConWhatsApp = configuraciones.First(x => x.Campo == "TrabajaConWhatsapp").ValorNumerico == 1;
 
-            string fecha = $"{horarioDisponible.Fecha:dd:MM:yy}{horarioDisponible.HoraInicio}";
-            var enviado = await _whatsapp.SendReservaTemplateAsync(Telefono, NombreCliente, fecha);
+            if (trabajaConWhatsApp)
+            {
+                string fecha = $"{horarioDisponible.Fecha:dd:MM:yy}{horarioDisponible.HoraInicio}";
+                var enviado = await _whatsapp.SendReservaTemplateAsync(Telefono, NombreCliente, fecha);
 
-            if (enviado)
-                TempData["Success"] = "Reserva confirmada y mensaje enviado por WhatsApp.";
+                if (enviado)
+                    MensajeSuccess = "Se te enviará un WhatsApp para que confirmes la reserva.";
+                else
+                    MensajeError = "No se pudo completar la reserva porque el numero ingresado no es correcto.";
+            }
             else
-                MensajeError = "Reserva confirmada pero no se pudo enviar el mensaje.";
+            {
+                _context.Reservas.Add(new Reserva()
+                {
+                    NombreCliente = NombreCliente,
+                    Telefono = Telefono,
+                    Fecha = DateTime.Now,
+                    Estado = 1,
+                    HorarioDisponible = horarioDisponible
+                });
+
+                horarioDisponible.EstaReservado = true;
+
+                await _context.SaveChangesAsync();
+
+                MensajeSuccess = "Reserva confirmada correctamente.";
+            }
 
             return RedirectToPage();
         }
@@ -80,6 +122,14 @@ namespace ReservaCanchita.Pages
             {
                 return RedirectToPage();
             }
+
+            if (!Telefono.StartsWith("22"))
+            {
+                MensajeError = "El numero de telefono ingresado no tiene el formato correcto.";
+                return RedirectToPage();
+            }
+
+            Telefono = NormalizarTelefono(Telefono);
 
             var configuraciones = await _context.Configuraciones.Where(x => x.Campo == "TrabajaConToleranciaCancelarReserva" || x.Campo == "HoraToleranciaCancelarReserva" || x.Campo == "NumeroContacto").ToListAsync();
             var trabajaConToleranciaCancelarReserva = configuraciones.FirstOrDefault(x => x.Campo == "TrabajaConToleranciaCancelarReserva");
