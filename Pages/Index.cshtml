@@ -215,5 +215,16 @@ else{
             });
         </script>
     }
+
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeSuccess))
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Completado',
+                text: '@Model.MensajeSuccess'
+            });
+        </script>
+    }
 }
 

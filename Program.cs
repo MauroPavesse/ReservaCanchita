@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ReservaCanchita.Data;
 using ReservaCanchita.Services.Configuraciones;
+using ReservaCanchita.Services.WhatsApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<ConfiguracionService>();
+builder.Services.AddHttpClient<WhatsAppService>();
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -44,5 +48,6 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapControllers();
 
 app.Run();

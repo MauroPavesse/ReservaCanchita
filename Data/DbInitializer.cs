@@ -8,13 +8,15 @@ public static class DbInitializer
     {
         var configuracionesIniciales = new List<Configuracion>
         {
-            new Configuracion { Campo = "NombreEmpresa", ValorString = "", ValorNumerico = 0 },
-            new Configuracion { Campo = "NumeroContacto", ValorString = "", ValorNumerico = 0 },
-            new Configuracion { Campo = "LogoEmpresa", ValorString = "logo.png", ValorNumerico = 0 },
-            new Configuracion { Campo = "ValorReserva", ValorString = "", ValorNumerico = 0 },
-            new Configuracion { Campo = "MuestraValorReserva", ValorString = "", ValorNumerico = 0},
-            new Configuracion { Campo = "HoraToleranciaCancelarReserva", ValorString = "", ValorNumerico = 0},
-            new Configuracion { Campo = "TrabajaConToleranciaCancelarReserva", ValorString = "", ValorNumerico = 0}
+            new Configuracion { Id = 1, Campo = "NombreEmpresa", ValorString = "", ValorNumerico = 0 },
+            new Configuracion { Id = 2, Campo = "NumeroContacto", ValorString = "", ValorNumerico = 0 },
+            new Configuracion { Id = 3, Campo = "LogoEmpresa", ValorString = "logo.png", ValorNumerico = 0 },
+            new Configuracion { Id = 4, Campo = "ValorReserva", ValorString = "", ValorNumerico = 0 },
+            new Configuracion { Id = 5, Campo = "MuestraValorReserva", ValorString = "", ValorNumerico = 0},
+            new Configuracion { Id = 6, Campo = "HoraToleranciaCancelarReserva", ValorString = "", ValorNumerico = 0},
+            new Configuracion { Id = 7, Campo = "TrabajaConToleranciaCancelarReserva", ValorString = "", ValorNumerico = 0},
+            new Configuracion { Id = 8, Campo = "TrabajaConWhatsapp", ValorString = "", ValorNumerico = 0},
+            new Configuracion { Id = 9, Campo = "VersionIncluyeWhatsapp", ValorString = "", ValorNumerico = 0}
         };
 
         foreach (var config in configuracionesIniciales)
