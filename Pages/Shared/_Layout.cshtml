@@ -1,4 +1,18 @@
-﻿<!DOCTYPE html>
+﻿@using ReservaCanchita.Services.Configuraciones
+@inject ConfiguracionService configuracionService
+@{
+    var configuraciones = await configuracionService.ObtenerConfiguraciones(new List<string>
+    {
+        "TrabajaConMenuComidas",
+        "VersionIncluyeMenuComidas"
+    });
+
+    bool mostrarContenidoEspecial =
+        configuraciones.FirstOrDefault(x => x.Campo == "VersionIncluyeMenuComidas")?.ValorNumerico == 1 &&
+        configuraciones.FirstOrDefault(x => x.Campo == "TrabajaConMenuComidas")?.ValorNumerico == 1;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -13,7 +27,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-page="/Dashboard">
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-page="/Index">
                     <img src="~/images/logo.png" alt="Logo" width="30" height="30" class="me-2" />
                     ProFutbol5
                 </a>
@@ -24,8 +38,14 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Dashboard">Inicio</a>
+                            <a class="nav-link text-dark" asp-page="/Index">Inicio</a>
                         </li>
+                        @if (mostrarContenidoEspecial)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-page="/Menu">Comida</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -45,8 +65,6 @@
             }
         </div>
     </footer>
-
-    
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

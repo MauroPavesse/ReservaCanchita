@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ReservaCanchita.Data;
+using ReservaCanchita.Services.Comidas;
+using ReservaCanchita.Services.ComidasCategorias;
 using ReservaCanchita.Services.Configuraciones;
 using ReservaCanchita.Services.WhatsApp;
 
@@ -18,6 +20,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<ConfiguracionService>();
+builder.Services.AddScoped<ComidaService>();
+builder.Services.AddScoped<ComidaCategoriaService>();
 builder.Services.AddHttpClient<WhatsAppService>();
 
 builder.Services.AddControllers();

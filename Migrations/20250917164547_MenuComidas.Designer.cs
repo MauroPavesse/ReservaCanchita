@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReservaCanchita.Data;
 
@@ -10,9 +11,11 @@ using ReservaCanchita.Data;
 namespace ReservaCanchita.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250917164547_MenuComidas")]
+    partial class MenuComidas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,10 +65,11 @@ namespace ReservaCanchita.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int?>("ComidaCategoriaId")
+                    b.Property<int>("ComidaCategoriaId")
                         .HasColumnType("int");
 
                     b.Property<string>("Descripcion")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Imagen")
@@ -247,7 +251,9 @@ namespace ReservaCanchita.Migrations
                 {
                     b.HasOne("ReservaCanchita.Models.ComidaCategoria", "ComidaCategoria")
                         .WithMany("Comidas")
-                        .HasForeignKey("ComidaCategoriaId");
+                        .HasForeignKey("ComidaCategoriaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ComidaCategoria");
                 });

@@ -43,6 +43,16 @@
         </div>
     }
 
+    @if (@Model.VersionMenuComidas)
+    {
+        <div>
+            <label>
+                <input type="checkbox" asp-for="TrabajaConMenuComidas" id="menuComidasCheckbox" />
+                Trabaja con Menu de Comidas
+            </label>
+        </div>
+    }
+
     <button type="submit" class="btn btn-primary mt-2">Guardar configuración</button>
 </form>
 
@@ -64,6 +74,10 @@
 
         document.getElementById('whatsAppCheckbox').addEventListener('change', () => {
             toggleInput('whatsAppCheckbox');
+        });
+
+        document.getElementById('menuComidasCheckbox').addEventListener('change', () => {
+            toggleInput('menuComidasCheckbox');
         });
 
         // Inicializar estado en carga

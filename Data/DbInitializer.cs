@@ -16,7 +16,9 @@ public static class DbInitializer
             new Configuracion { Id = 6, Campo = "HoraToleranciaCancelarReserva", ValorString = "", ValorNumerico = 0},
             new Configuracion { Id = 7, Campo = "TrabajaConToleranciaCancelarReserva", ValorString = "", ValorNumerico = 0},
             new Configuracion { Id = 8, Campo = "TrabajaConWhatsapp", ValorString = "", ValorNumerico = 0},
-            new Configuracion { Id = 9, Campo = "VersionIncluyeWhatsapp", ValorString = "", ValorNumerico = 0}
+            new Configuracion { Id = 9, Campo = "VersionIncluyeWhatsapp", ValorString = "", ValorNumerico = 0},
+            new Configuracion { Id = 10, Campo = "TrabajaConMenuComidas", ValorString = "", ValorNumerico = 0},
+            new Configuracion { Id = 11, Campo = "VersionIncluyeMenuComidas", ValorString = "", ValorNumerico = 0}
         };
 
         foreach (var config in configuracionesIniciales)

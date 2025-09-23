@@ -9,6 +9,20 @@
     }
 }
 
+@using ReservaCanchita.Services.Configuraciones
+@inject ConfiguracionService configuracionService
+@{
+    var configuraciones = await configuracionService.ObtenerConfiguraciones(new List<string>
+    {
+        "TrabajaConMenuComidas",
+        "VersionIncluyeMenuComidas"
+    });
+
+    bool mostrarContenidoEspecial =
+        configuraciones.FirstOrDefault(x => x.Campo == "VersionIncluyeMenuComidas")?.ValorNumerico == 1 &&
+        configuraciones.FirstOrDefault(x => x.Campo == "TrabajaConMenuComidas")?.ValorNumerico == 1;
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,11 +43,11 @@
                     <img src="~/images/logo.png" alt="Logo" width="30" height="30" class="me-2" />
                     ProFutbol5
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-page="/Administrador/Dashboard">Inicio</a>
@@ -41,6 +55,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-page="/Administrador/Calendario">Calendario</a>
                         </li>
+                        @if (mostrarContenidoEspecial)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-page="/Administrador/Menu">Menu</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-page="/Administrador/Configuracion">Configuracion</a>
                         </li>
@@ -76,7 +96,6 @@
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

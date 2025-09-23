@@ -15,4 +15,6 @@ public class AppDbContext : DbContext
     public DbSet<Reserva> Reservas { get; set; }
     public DbSet<CanchaSemana> CanchasSemanas { get; set; }
     public DbSet<Configuracion> Configuraciones { get; set; }
+    public DbSet<ComidaCategoria> ComidasCategorias { get; set; }
+    public DbSet<Comida> Comidas { get; set; }
 }

@@ -1,0 +1,41 @@
+﻿@page
+@model ReservaCanchita.Pages.MenuModel
+@{
+}
+
+
+@foreach(var comidaCategoria in Model.ComidasCategorias.Where(x => x.Comidas.Any()))
+{
+    <div class="card mb-3">
+        <div class="card-header">
+            @comidaCategoria.Nombre
+        </div>
+        @foreach(var comida in comidaCategoria.Comidas)
+        {
+            <div class="card-body">
+                <div style="display: flex; justify-content: space-between">
+                    <h4 class="card-title">@comida.Nombre</h4>
+                    <h5 style="min-width: 90px; text-align: right">@comida.Importe.ToString("C")</h5>
+                </div>
+                <p class="card-text">@comida.Descripcion</p>
+            </div>
+        }
+    </div>
+}
+@if (Model.Comidas.Any(x => x.ComidaCategoriaId == null || x.ComidaCategoriaId == 0))
+{
+    <div class="card mb-3">
+        <div class="card-header">
+        </div>
+        @foreach (var comida in Model.Comidas.Where(x => x.ComidaCategoriaId == null | x.ComidaCategoriaId == 0))
+        {
+            <div class="card-body">
+                <div style="display: flex; justify-content: space-between">
+                    <h4 class="card-title">@comida.Nombre</h4>
+                    <h5 style="min-width: 90px; text-align: right">@comida.Importe.ToString("C")</h5>
+                </div>
+                <p class="card-text">@comida.Descripcion</p>
+            </div>
+        }
+    </div>
+}
