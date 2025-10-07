@@ -7,9 +7,9 @@ namespace ReservaCanchita.Pages.Administrador
 {
     public class ConfiguracionModel : PageModel
     {
-        private readonly ConfiguracionService configuracionService;
+        private readonly ConfiguracionServicio configuracionService;
 
-        public ConfiguracionModel(ConfiguracionService configuracionService)
+        public ConfiguracionModel(ConfiguracionServicio configuracionService)
         {
             this.configuracionService = configuracionService;
         }

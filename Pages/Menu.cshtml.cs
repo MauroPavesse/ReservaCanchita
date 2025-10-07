@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ReservaCanchita.Models;
+using ReservaCanchita.Services;
 using ReservaCanchita.Services.Comidas;
 using ReservaCanchita.Services.ComidasCategorias;
 
@@ -8,10 +9,10 @@ namespace ReservaCanchita.Pages
 {
     public class MenuModel : PageModel
     {
-        private ComidaService comidaService;
-        private ComidaCategoriaService comidaCategoriaService;
+        private ComidaServicio comidaService;
+        private ComidaCategoriaServicio comidaCategoriaService;
 
-        public MenuModel(ComidaService comidaService, ComidaCategoriaService comidaCategoriaService)
+        public MenuModel(ComidaServicio comidaService, ComidaCategoriaServicio comidaCategoriaService)
         {
             this.comidaService = comidaService;
             this.comidaCategoriaService = comidaCategoriaService;
@@ -24,7 +25,10 @@ namespace ReservaCanchita.Pages
 
         public async Task OnGet()
         {
-            Comidas = await comidaService.ObtenerTodo();
+            Comidas = await comidaService.ObtenerTodo(new BuscadorEntrada()
+            {
+                TablasIncluidas = new List<string>() { "ComidaCategoria" }
+            });
             ComidasCategorias = await comidaCategoriaService.ObtenerTodo();
         }
     }

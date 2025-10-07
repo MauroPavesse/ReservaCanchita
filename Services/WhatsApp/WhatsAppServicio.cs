@@ -6,14 +6,14 @@ using ReservaCanchita.Data;
 
 namespace ReservaCanchita.Services.WhatsApp
 {
-    public class WhatsAppService
+    public class WhatsAppServicio
     {
         private readonly HttpClient _httpClient;
         private readonly string _phoneNumberId;
         private readonly string _accessToken;
         private readonly AppDbContext _context;
 
-        public WhatsAppService(HttpClient httpClient, IConfiguration config, AppDbContext context)
+        public WhatsAppServicio(HttpClient httpClient, IConfiguration config, AppDbContext context)
         {
             _httpClient = httpClient;
             _phoneNumberId = config["WhatsApp:PhoneNumberId"]!;

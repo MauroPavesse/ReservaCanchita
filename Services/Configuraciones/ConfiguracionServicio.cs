@@ -6,11 +6,11 @@ using ReservaCanchita.Services.Configuraciones.Dtos;
 
 namespace ReservaCanchita.Services.Configuraciones
 {
-    public class ConfiguracionService
+    public class ConfiguracionServicio
     {
         private readonly AppDbContext _context;
 
-        public ConfiguracionService(AppDbContext context)
+        public ConfiguracionServicio(AppDbContext context)
         {
             _context = context;
         }

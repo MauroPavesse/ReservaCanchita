@@ -4,11 +4,11 @@ using ReservaCanchita.Models;
 
 namespace ReservaCanchita.Services.ComidasCategorias
 {
-    public class ComidaCategoriaService
+    public class ComidaCategoriaServicio
     {
         private readonly AppDbContext appDbContext;
 
-        public ComidaCategoriaService(AppDbContext appDbContext)
+        public ComidaCategoriaServicio(AppDbContext appDbContext)
         {
             this.appDbContext = appDbContext;
         }

@@ -12,9 +12,9 @@ namespace ReservaCanchita.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly AppDbContext _context;
-        private readonly WhatsAppService _whatsapp;
+        private readonly WhatsAppServicio _whatsapp;
 
-        public IndexModel(ILogger<IndexModel> logger, AppDbContext context, WhatsAppService whatsapp)
+        public IndexModel(ILogger<IndexModel> logger, AppDbContext context, WhatsAppServicio whatsapp)
         {
             _logger = logger;
             _context = context;

@@ -1,5 +1,5 @@
 ﻿@using ReservaCanchita.Services.Configuraciones
-@inject ConfiguracionService configuracionService
+@inject ConfiguracionServicio configuracionService
 @{
     var configuraciones = await configuracionService.ObtenerConfiguraciones(new List<string>
     {

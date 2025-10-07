@@ -1,13 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using ReservaCanchita.Data;
+using ReservaCanchita.Services.Canchas;
 using ReservaCanchita.Services.Comidas;
 using ReservaCanchita.Services.ComidasCategorias;
 using ReservaCanchita.Services.Configuraciones;
+using ReservaCanchita.Services.HorariosDisponibles;
+using ReservaCanchita.Services.Utilities;
 using ReservaCanchita.Services.WhatsApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddSession();
 
@@ -19,10 +21,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<ConfiguracionService>();
-builder.Services.AddScoped<ComidaService>();
-builder.Services.AddScoped<ComidaCategoriaService>();
-builder.Services.AddHttpClient<WhatsAppService>();
+builder.Services.AddScoped<CanchaServicio>();
+builder.Services.AddScoped<ComidaServicio>();
+builder.Services.AddScoped<ComidaCategoriaServicio>();
+builder.Services.AddScoped<ConfiguracionServicio>();
+builder.Services.AddScoped<HorarioDisponibleServicio>();
+builder.Services.AddHostedService<CambioDiaFondoServicio>();
+builder.Services.AddHttpClient<WhatsAppServicio>();
 
 builder.Services.AddControllers();
 

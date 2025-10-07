@@ -2,18 +2,18 @@
 using ReservaCanchita.Data;
 using ReservaCanchita.Models;
 
-namespace ReservaCanchita.Services
+namespace ReservaCanchita.Services.HorariosDisponibles
 {
-    public class HorarioService
+    public class HorarioDisponibleServicio
     {
         private readonly AppDbContext _context;
 
-        public HorarioService(AppDbContext context)
+        public HorarioDisponibleServicio(AppDbContext context)
         {
             _context = context;
         }
 
-        public async Task GenerarHorariosDisponibles(int canchaId, int dias)
+        public async Task GenerarHorariosDisponibles(int canchaId, int dias, int diaInicio = 0)
         {
             var cancha = await _context.Canchas
                 .Include(c => c.HorariosBase)
@@ -25,11 +25,11 @@ namespace ReservaCanchita.Services
 
             foreach (var horarioBase in cancha.HorariosBase)
             {
-                for (int i = 0; i < dias; i++)
+                for (int i = diaInicio; i < dias; i++)
                 {
                     var fecha = hoy.AddDays(i);
 
-                    bool yaExiste = _context.HorariosDisponibles.Any(h =>
+                    bool yaExiste = await _context.HorariosDisponibles.AnyAsync(h =>
                         h.CanchaId == canchaId &&
                         h.Fecha == fecha &&
                         h.HoraInicio == horarioBase.HoraInicio &&

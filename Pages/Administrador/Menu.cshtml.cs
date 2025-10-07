@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ReservaCanchita.Models;
+using ReservaCanchita.Services;
 using ReservaCanchita.Services.Comidas;
 using ReservaCanchita.Services.ComidasCategorias;
 
@@ -8,10 +9,10 @@ namespace ReservaCanchita.Pages.Administrador
 {
     public class MenuModel : PageModel
     {
-        private ComidaCategoriaService comidaCategoriaService;
-        private ComidaService comidaService;
+        private ComidaCategoriaServicio comidaCategoriaService;
+        private ComidaServicio comidaService;
 
-        public MenuModel(ComidaCategoriaService comidaCategoriaService, ComidaService comidaService)
+        public MenuModel(ComidaCategoriaServicio comidaCategoriaService, ComidaServicio comidaService)
         {
             this.comidaCategoriaService = comidaCategoriaService;
             this.comidaService = comidaService;
@@ -25,7 +26,10 @@ namespace ReservaCanchita.Pages.Administrador
         public async Task OnGet()
         {
             ComidasCategorias = await comidaCategoriaService.ObtenerTodo();
-            Comidas = await comidaService.ObtenerTodo();
+            Comidas = await comidaService.ObtenerTodo(new BuscadorEntrada()
+            {
+                TablasIncluidas = new List<string>() { "ComidaCategoria" }
+            });
         }
 
         public async Task<IActionResult> OnPost(string Nombre, string Descripcion, decimal Precio, int CategoriaId)
@@ -54,7 +58,12 @@ namespace ReservaCanchita.Pages.Administrador
 
         public async Task<IActionResult> OnGetObtenerComida(int id)
         {
-            var comida = await comidaService.ObtenerPorId(id);
+            var comida = (await comidaService.ObtenerTodo(new BuscadorEntrada()
+            {
+                Id = id,
+                TablasIncluidas = new List<string>() { "ComidaCategoria" }
+            })).FirstOrDefault();
+
             if (comida == null)
             {
                 return NotFound();
@@ -73,7 +82,12 @@ namespace ReservaCanchita.Pages.Administrador
 
         public async Task<IActionResult> OnPostActualizarComida(int id, string nombre, string? descripcion, decimal precio, int categoriaId)
         {
-            var comida = await comidaService.ObtenerPorId(id);
+            var comida = (await comidaService.ObtenerTodo(new BuscadorEntrada()
+            {
+                Id = id,
+                TablasIncluidas = new List<string>() { "ComidaCategoria" }
+            })).FirstOrDefault();
+
             if (comida != null)
             {
                 comida.Nombre = nombre;
@@ -89,7 +103,11 @@ namespace ReservaCanchita.Pages.Administrador
 
         public async Task<IActionResult> OnPostEliminarComida(int id)
         {
-            var comida = await comidaService.ObtenerPorId(id);
+            var comida = (await comidaService.ObtenerTodo(new BuscadorEntrada()
+            {
+                Id = id
+            })).FirstOrDefault();
+
             if (comida != null)
             {
                 await comidaService.Eliminar(comida);

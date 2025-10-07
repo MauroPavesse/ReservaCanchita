@@ -17,7 +17,7 @@
             @foreach (var horariosPorCancha in Model.HorariosDisponibles.Where(x => x.Fecha.Date == DateTime.Now.Date).GroupBy(x => x.CanchaId))
             {
                 <div class="d-flex flex-wrap">
-                    @foreach (var horarioDisponible in horariosPorCancha.OrderBy(x => x.HoraInicio))
+                    @foreach (var horarioDisponible in horariosPorCancha.Where(x => x.HoraInicio > DateTime.Now.TimeOfDay).OrderBy(x => x.HoraInicio))
                     {
                         @if (horarioDisponible.EstaReservado)
                         {

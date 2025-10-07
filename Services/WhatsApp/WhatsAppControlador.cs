@@ -5,12 +5,12 @@ namespace ReservaCanchita.Services.WhatsApp
 {
     [ApiController]
     [Route("api/whatsapp/webhook")]
-    public class WhatsAppController : ControllerBase
+    public class WhatsAppControlador : ControllerBase
     {
-        private readonly WhatsAppService _whatsapp;
+        private readonly WhatsAppServicio _whatsapp;
         private readonly string? _verifyToken;
 
-        public WhatsAppController(WhatsAppService whatsapp, IConfiguration config)
+        public WhatsAppControlador(WhatsAppServicio whatsapp, IConfiguration config)
         {
             _whatsapp = whatsapp;
             _verifyToken = config["WhatsApp:VerifyToken"];
