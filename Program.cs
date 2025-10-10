@@ -13,14 +13,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddSession();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
-    ));
-
 builder.Services.AddHttpContextAccessor();
 
+//builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseMySql(
+//        builder.Configuration.GetConnectionString("DefaultConnection"),
+//        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+//    ));
+
+builder.Services.AddScoped<IConnectionStringResolver, ConnectionStringResolver>();
 builder.Services.AddScoped<CanchaServicio>();
 builder.Services.AddScoped<ComidaServicio>();
 builder.Services.AddScoped<ComidaCategoriaServicio>();
@@ -30,6 +31,13 @@ builder.Services.AddHostedService<CambioDiaFondoServicio>();
 builder.Services.AddHttpClient<WhatsAppServicio>();
 
 builder.Services.AddControllers();
+
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+{
+    var resolver = serviceProvider.GetRequiredService<IConnectionStringResolver>();
+    var connectionString = resolver.GetConnectionString();
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+});
 
 var app = builder.Build();
 
