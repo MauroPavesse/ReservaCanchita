@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ReservaCanchita.Data;
 using ReservaCanchita.Models;
+using ReservaCanchita.Services.HorariosDisponibles;
 
 namespace ReservaCanchita.Pages.Administrador
 {
     public class CalendarioModel : PageModel
     {
         private readonly AppDbContext _context;
+        private HorarioDisponibleServicio horarioDisponibleServicio;
 
-        public CalendarioModel(AppDbContext context)
+        public CalendarioModel(AppDbContext context, HorarioDisponibleServicio horarioDisponibleServicio)
         {
             _context = context;
+            this.horarioDisponibleServicio = horarioDisponibleServicio;
         }
 
         public List<HorarioDisponible> HorariosDisponibles { get; set; } = new List<HorarioDisponible>();
@@ -21,13 +24,25 @@ namespace ReservaCanchita.Pages.Administrador
         public int HorarioDisponibleId { get; set; }
         [BindProperty]
         public DateTime FechaAEliminar { get; set; }
+        [BindProperty]
+        public List<Tuple<string, int>> DatosHistograma { get; set; } = new List<Tuple<string, int>>();
 
         public async Task OnGetAsync()
         {
-            HorariosDisponibles = await _context.HorariosDisponibles.ToListAsync();
+            /*DateTime fechaInicio = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            DateTime fechaFin = fechaInicio.AddMonths(1).AddDays(-1);
+            HorariosDisponibles = await horarioDisponibleServicio.ObtenerDesdeHasta(fechaInicio, fechaFin);
+            //HorariosDisponibles = await _context.HorariosDisponibles.ToListAsync();
 
+            var eventos = acomodarCalendario();
+            EventosCalendario = eventos;*/
+        }
+
+        private List<object> acomodarCalendario()
+        {
             var eventos = new List<object>();
 
+            DatosHistograma = new List<Tuple<string, int>>();
             foreach (var horarioDisponibleFecha in HorariosDisponibles.GroupBy(x => x.Fecha.Date))
             {
                 var color = horarioDisponibleFecha.Count(x => x.EstaReservado) == 0 ? "green"
@@ -42,9 +57,23 @@ namespace ReservaCanchita.Pages.Administrador
                     display = "background",
                     color = color
                 });
+
+                DatosHistograma.Add(new Tuple<string, int>(horarioDisponibleFecha.First().Fecha.ToString("dd/MM/yy"), horarioDisponibleFecha.Count(x => x.EstaReservado)));
             }
 
-            EventosCalendario = eventos;
+            return eventos;
+        }
+
+        public async Task<JsonResult> OnGetEventosPorMes(int mes, int anio)
+        {
+            DateTime fechaInicio = new DateTime(anio, mes+1, 1);
+            DateTime fechaFin = fechaInicio.AddMonths(1).AddDays(-1);
+            HorariosDisponibles = await horarioDisponibleServicio.ObtenerDesdeHasta(fechaInicio, fechaFin);
+
+            var eventos = acomodarCalendario();
+            
+
+            return new JsonResult(eventos);
         }
 
         public JsonResult OnGetHorariosPorFecha(DateTime fecha)
@@ -66,6 +95,35 @@ namespace ReservaCanchita.Pages.Administrador
 
             return new JsonResult(horarios);
         }
+
+        public async Task<JsonResult> OnGetDatosHistogramaAsync(int mes, int anio)
+        {
+            DateTime fechaInicio = new DateTime(anio, mes+1, 1);
+            DateTime fechaFin = fechaInicio.AddMonths(1).AddDays(-1);
+
+            // Puedes reutilizar tu servicio
+            var horarios = await horarioDisponibleServicio.ObtenerDesdeHasta(fechaInicio, fechaFin);
+
+            // Agrupar por cancha o por día, tú decides
+            // Aquí un ejemplo agrupando por día:
+            var datos = horarios
+                .GroupBy(h => h.Fecha.Date)
+                .Select(g => new {
+                    Fecha = g.Key.ToString("dd/MM"),
+                    Cantidad = g.Where(x => x.EstaReservado).Count()
+                })
+                .OrderBy(x => x.Fecha)
+                .ToList();
+
+            int max = horarios.GroupBy(h => h.Fecha.Date).ToList().First().Count();
+
+            return new JsonResult(new
+            {
+                valores = datos,
+                max = max
+            });
+        }
+
 
         public async Task<IActionResult> OnPostEliminarReservaAsync()
         {

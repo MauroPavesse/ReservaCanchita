@@ -2,6 +2,21 @@
 @model ReservaCanchita.Pages.Administrador.CalendarioModel
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
+    <div id="loaderOverlay" style="
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(255,255,255,0.7);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    ">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
     ViewData["Title"] = "Calendario";
 
     <div id="calendar"></div>
@@ -65,6 +80,8 @@
             </div>
         </div>
     </div>
+
+    <canvas id="histogramaChart" width="400" height="200"></canvas>
 
     <style>
         #calendar {
@@ -130,8 +147,41 @@
                             const modal = new bootstrap.Modal(document.getElementById('modalDia'));
                             modal.show();
                         });
-                }
+                },
+                datesSet: function(info) {
+                    const fechaActual = info.start; // Fecha de inicio del rango visible (primer día visible del mes)
+                    const mes = fechaActual.getMonth() + 1; // getMonth() es base 0, así que le sumamos 1
+                    const anio = fechaActual.getFullYear();
+                    
+                    mostrarLoader();
 
+                    fetch(`/Administrador/Calendario?handler=EventosPorMes&mes=${mes}&anio=${anio}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Eventos del mes:", data);
+
+                            calendar.removeAllEvents();      // 🔁 Limpia eventos actuales
+                            calendar.addEventSource(data);   // ✅ Carga los nuevos
+                        });
+
+                        fetch(`/Administrador/Calendario?handler=DatosHistograma&mes=${mes}&anio=${anio}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const etiquetas = data.valores.map(item => item.fecha);
+                                const cantidades = data.valores.map(item => item.cantidad);
+                                const maxValor = data.max;
+
+                                myChart.data.labels = etiquetas;
+                                myChart.data.datasets[0].data = cantidades;
+
+                                // Asignar el nuevo máximo al eje Y
+                                myChart.options.scales.y.max = maxValor;
+
+                                myChart.update();
+                            })
+                            .finally(() => ocultarLoader());
+
+                }
             });
 
             calendar.render();
@@ -172,6 +222,44 @@
 
             const modal = new bootstrap.Modal(document.getElementById("modalConfirmarEliminarDia"));
             modal.show();
+        }
+
+        // Datos del histograma (puedes pasarlos dinámicamente desde C#)
+        var datos = [];
+
+        // Nombres o títulos para cada barra
+        var nombresColumnas = [];
+
+        var ctx = document.getElementById('histogramaChart').getContext('2d');
+
+        var myChart = new Chart(ctx, {
+            type: 'bar',  // Tipo de gráfico: barra (histograma)
+            data: {
+                labels: nombresColumnas,  // Asignar los títulos o nombres de las columnas
+                datasets: [{
+                    label: 'Historial de reservas',
+                    data: datos,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        function mostrarLoader() {
+            document.getElementById('loaderOverlay').style.display = 'flex';
+        }
+
+        function ocultarLoader() {
+            document.getElementById('loaderOverlay').style.display = 'none';
         }
     </script>
 }

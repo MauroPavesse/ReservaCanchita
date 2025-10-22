@@ -54,5 +54,13 @@ namespace ReservaCanchita.Services.HorariosDisponibles
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<HorarioDisponible>> ObtenerDesdeHasta(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            var horariosDisponibles = await _context.HorariosDisponibles
+                .Where(x => x.Fecha.Date >= fechaDesde.Date && x.Fecha.Date <= fechaHasta.Date)
+                .ToListAsync();
+
+            return horariosDisponibles;
+        }
     }
 }
