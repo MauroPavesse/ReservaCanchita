@@ -19,17 +19,18 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Publish .NET app
+        run: dotnet publish -c Release -o out
+
+      - name: Setup SSH key
         run: |
-          dotnet publish -c Release -o out
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H 72.60.60.66 >> ~/.ssh/known_hosts
+        shell: bash
 
       - name: Deploy to VPS using SCP
-        run: |
-          scp -r ./out/* root@72.60.60.66:/var/www/reservacanchita/
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: scp -i ~/.ssh/id_ed25519 -r ./out/* root@72.60.60.66:/var/www/reservacanchita/
 
       - name: Restart service on VPS
-        run: |
-          ssh root@72.60.60.66 "systemctl restart reservacanchita"
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: ssh -i ~/.ssh/id_ed25519 root@72.60.60.66 "systemctl restart reservacanchita"
