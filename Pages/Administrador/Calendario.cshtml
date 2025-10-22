@@ -97,6 +97,9 @@
                     fetch(`/Administrador/Calendario?handler=HorariosPorFecha&fecha=${fecha}`)
                         .then(response => response.json())
                         .then(data => {
+                            if (!data || data.length === 0 || !data.some(cancha => cancha.horarios.length > 0)) {
+                                return;
+                            }
                             let contenido = `<h6>Horarios disponibles para <strong>${fecha}</strong></h6>`;
                             data.forEach(cancha => {
                                 contenido += `<div class="mb-2"><strong>${cancha.cancha}</strong></div><div class="d-flex flex-wrap">`;
@@ -133,13 +136,6 @@
 
             calendar.render();
         });
-
-        // function mostrarConfirmacionEliminar(id) {
-        //     document.getElementById('horarioDisponibleId').value = id;
-
-        //     const modal = new bootstrap.Modal(document.getElementById('modalConfirmarEliminar'));
-        //     modal.show();
-        // }
 
         function mostrarConfirmacionEliminar(id) {
             document.getElementById('horarioDisponibleId').value = id;

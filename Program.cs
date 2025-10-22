@@ -32,6 +32,8 @@ builder.Services.AddHttpClient<WhatsAppServicio>();
 
 builder.Services.AddControllers();
 
+
+
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
     var resolver = serviceProvider.GetRequiredService<IConnectionStringResolver>();
@@ -41,13 +43,34 @@ builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 
 var app = builder.Build();
 
+var connectionStrings = new[] {
+    builder.Configuration.GetConnectionString("profutbol5"),
+    builder.Configuration.GetConnectionString("demo"),
+    builder.Configuration.GetConnectionString("DefaultConnection")
+};
+
 using (var scope = app.Services.CreateScope())
+{
+    foreach (var connStr in connectionStrings)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+        optionsBuilder.UseMySql(connStr, ServerVersion.AutoDetect(connStr));
+
+        using (var context = new AppDbContext(optionsBuilder.Options))
+        {
+            context.Database.Migrate();
+            ReservaCanchita.Data.DbInitializer.Seed(context);
+        }
+    }
+}
+
+/*using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
     context.Database.Migrate();
     ReservaCanchita.Data.DbInitializer.Seed(context);
-}
+}*/
 
 if (!app.Environment.IsDevelopment())
 {
