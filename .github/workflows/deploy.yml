@@ -25,6 +25,8 @@ jobs:
       - name: Deploy to VPS using SCP
         run: |
           scp -r ./out/* root@72.60.60.66:/var/www/reservacanchita/
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Restart service on VPS
         run: |
