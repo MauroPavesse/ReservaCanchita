@@ -16,7 +16,7 @@ namespace ReservaCanchita.Services.Utilities
         {
             while (!tokenFrenado.IsCancellationRequested)
             {
-                var hoy = DateTime.UtcNow;
+                var hoy = DateTime.Now;
                 var fechaObjetivo = new DateTime(hoy.Year, hoy.Month, hoy.Day).AddDays(1);
 
                 var tiempoHastaElSiguienteDia = fechaObjetivo - hoy;

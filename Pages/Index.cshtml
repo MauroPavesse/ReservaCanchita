@@ -10,14 +10,14 @@
 </div>
 
 <h3>Canchitas para hoy</h3>
-@if (Model.HorariosDisponibles.Where(x => x.Fecha.Date == DateTime.UtcNow.Date).Any())
+@if (Model.HorariosDisponibles.Where(x => x.Fecha.Date == DateTime.Now.Date).Any())
 {
     <div class="card mb-3">
         <div class="card-body">
-            @foreach (var horariosPorCancha in Model.HorariosDisponibles.Where(x => x.Fecha.Date == DateTime.UtcNow.Date).GroupBy(x => x.CanchaId))
+            @foreach (var horariosPorCancha in Model.HorariosDisponibles.Where(x => x.Fecha.Date == DateTime.Now.Date).GroupBy(x => x.CanchaId))
             {
                 <div class="d-flex flex-wrap">
-                    @foreach (var horarioDisponible in horariosPorCancha.Where(x => x.HoraInicio > DateTime.UtcNow.TimeOfDay).OrderBy(x => x.HoraInicio))
+                    @foreach (var horarioDisponible in horariosPorCancha.Where(x => x.HoraInicio > DateTime.Now.TimeOfDay).OrderBy(x => x.HoraInicio))
                     {
                         @if (horarioDisponible.EstaReservado)
                         {
