@@ -2,9 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ReservaCanchita.Data;
-using ReservaCanchita.Migrations;
 using ReservaCanchita.Models;
+using ReservaCanchita.Services.MercadoPago;
 using ReservaCanchita.Services.WhatsApp;
+using ReservaCanchita.Shared;
 
 namespace ReservaCanchita.Pages
 {
@@ -13,12 +14,14 @@ namespace ReservaCanchita.Pages
         private readonly ILogger<IndexModel> _logger;
         private readonly AppDbContext _context;
         private readonly WhatsAppServicio _whatsapp;
+        private readonly MercadoPagoServicio _mpService;
 
-        public IndexModel(ILogger<IndexModel> logger, AppDbContext context, WhatsAppServicio whatsapp)
+        public IndexModel(ILogger<IndexModel> logger, AppDbContext context, WhatsAppServicio whatsapp, MercadoPagoServicio mpService)
         {
             _logger = logger;
             _context = context;
             _whatsapp = whatsapp;
+            _mpService = mpService;
         }
 
         public List<HorarioDisponible> HorariosDisponibles { get; set; } = new List<HorarioDisponible>();
@@ -28,6 +31,7 @@ namespace ReservaCanchita.Pages
         public string MensajeError { get; set; } = string.Empty;
         [TempData]
         public string MensajeSuccess { get; set; } = string.Empty;
+        public string? InitPoint { get; set; }
 
         public async Task OnGetAsync()
         {
@@ -82,6 +86,8 @@ namespace ReservaCanchita.Pages
 
             var configuraciones = await _context.Configuraciones.Where(x => x.Campo == "TrabajaConWhatsapp").ToArrayAsync();
             var trabajaConWhatsApp = configuraciones.First(x => x.Campo == "TrabajaConWhatsapp").ValorNumerico == 1;
+            var trabajaConSeña = true;
+            var montoSeña = 1000;
 
             if (trabajaConWhatsApp)
             {
@@ -95,20 +101,50 @@ namespace ReservaCanchita.Pages
             }
             else
             {
-                _context.Reservas.Add(new Reserva()
+                if (trabajaConSeña)
                 {
-                    NombreCliente = NombreCliente,
-                    Telefono = Telefono,
-                    Fecha = DateTime.Now,
-                    Estado = 1,
-                    HorarioDisponible = horarioDisponible
-                });
+                    var pageUrl = Url.PageLink();
 
-                horarioDisponible.EstaReservado = true;
+                    var reservaActual = _context.Reservas.Add(new Reserva()
+                    {
+                        NombreCliente = NombreCliente,
+                        Telefono = Telefono,
+                        Fecha = DateTime.Now,
+                        Estado = (int)ReservaEstadosEnum.RESERVA_ESTADOS.EN_CONFIRMACION,
+                        HorarioDisponible = horarioDisponible
+                    });
 
-                await _context.SaveChangesAsync();
+                    horarioDisponible.EstaReservado = true;
 
-                MensajeSuccess = "Reserva confirmada correctamente.";
+                    await _context.SaveChangesAsync();
+                    InitPoint = await _mpService.CrearLinkPagoAsync(montoSeña, reservaActual.Entity.Id, pageUrl!);
+
+                    if (InitPoint != null)
+                    {
+                        return Redirect(InitPoint);
+                    }
+                    else
+                    {
+                        return Page();
+                    }
+                }
+                else
+                {
+                    _context.Reservas.Add(new Reserva()
+                    {
+                        NombreCliente = NombreCliente,
+                        Telefono = Telefono,
+                        Fecha = DateTime.Now,
+                        Estado = (int)ReservaEstadosEnum.RESERVA_ESTADOS.RESERVADO,
+                        HorarioDisponible = horarioDisponible
+                    });
+
+                    horarioDisponible.EstaReservado = true;
+
+                    await _context.SaveChangesAsync();
+
+                    MensajeSuccess = "Reserva confirmada correctamente.";
+                }
             }
 
             return RedirectToPage();
