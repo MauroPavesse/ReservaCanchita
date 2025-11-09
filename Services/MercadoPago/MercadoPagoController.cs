@@ -1,6 +1,7 @@
 ﻿using MercadoPago.Client.Payment;
 using MercadoPago.Resource.Payment;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ReservaCanchita.Data;
 using ReservaCanchita.Shared;
 
@@ -22,8 +23,8 @@ public class MercadoPagoController : ControllerBase
     {
         try
         {
-            string type = body?.type;
-            string id = body?.data?.id;
+            string type = body.type;
+            string id = body.data.id;
 
             if (type == "payment")
             {
@@ -48,6 +49,12 @@ public class MercadoPagoController : ControllerBase
                             reserva.Estado = (int)ReservaEstadosEnum.RESERVA_ESTADOS.EN_CONFIRMACION;
                             break;
                     }
+
+                    var pagoMercadoPago = await _context.PagosMercadoPago.FirstAsync(x => x.ExternalReference == reservaId.ToString());
+                    pagoMercadoPago.Status = payment.Status;
+                    pagoMercadoPago.PaymentId = payment.Id.ToString() ?? "";
+                    pagoMercadoPago.DateUpdated = payment.DateLastUpdated ?? DateTime.UtcNow;
+                    pagoMercadoPago.TotalAmount = payment.TransactionAmount ?? 0m;
 
                     await _context.SaveChangesAsync();
                 }

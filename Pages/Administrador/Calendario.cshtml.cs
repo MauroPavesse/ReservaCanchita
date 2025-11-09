@@ -27,16 +27,16 @@ namespace ReservaCanchita.Pages.Administrador
         [BindProperty]
         public List<Tuple<string, int>> DatosHistograma { get; set; } = new List<Tuple<string, int>>();
 
-        public async Task OnGetAsync()
+        /*public async Task OnGetAsync()
         {
-            /*DateTime fechaInicio = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            DateTime fechaInicio = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
             DateTime fechaFin = fechaInicio.AddMonths(1).AddDays(-1);
             HorariosDisponibles = await horarioDisponibleServicio.ObtenerDesdeHasta(fechaInicio, fechaFin);
             //HorariosDisponibles = await _context.HorariosDisponibles.ToListAsync();
 
             var eventos = acomodarCalendario();
-            EventosCalendario = eventos;*/
-        }
+            EventosCalendario = eventos;
+        }*/
 
         private List<object> acomodarCalendario()
         {

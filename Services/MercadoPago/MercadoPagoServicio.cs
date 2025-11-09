@@ -1,11 +1,15 @@
 ﻿using MercadoPago.Client.Preference;
+using ReservaCanchita.Services.PagosMercadoPago;
 
 namespace ReservaCanchita.Services.MercadoPago
 {
     public class MercadoPagoServicio
     {
-        public MercadoPagoServicio()
+        private readonly PagoMercadoPagoServicio pagoMercadoPagoServicio;
+
+        public MercadoPagoServicio(PagoMercadoPagoServicio pagoMercadoPagoServicio)
         {
+            this.pagoMercadoPagoServicio = pagoMercadoPagoServicio;
         }
 
         public async Task<string?> CrearLinkPagoAsync(decimal monto, int reservaId, string pageUrl)
@@ -43,8 +47,14 @@ namespace ReservaCanchita.Services.MercadoPago
                 var client = new PreferenceClient();
                 var preference = await client.CreateAsync(request);
 
-                // Opcional: guardar el ID de la preferencia para rastrear el pago luego
-                // preference.Id
+                await pagoMercadoPagoServicio.Guardar(new Models.PagoMercadoPago()
+                {
+                    PreferenceId = preference.Id,
+                    ExternalReference = reservaId.ToString(),
+                    InitPoint = preference.InitPoint,
+                    Status = "open",
+                    DateCreated = preference.DateCreated ?? DateTime.UtcNow
+                });
 
                 return preference.InitPoint;
             }

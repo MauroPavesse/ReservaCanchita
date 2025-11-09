@@ -162,18 +162,18 @@ namespace ReservaCanchita.Pages.Administrador
             if (horario != null)
             {
                 _context.HorariosBase.Remove(horario);
+
+                var cancha = await _context.Canchas.Include(x => x.HorariosDisponibles).Where(x => x.Id == CanchaId).FirstAsync();
+
+                var horariosDisponiblesAEliminar = cancha.HorariosDisponibles.Where(x => x.Fecha.Date >= DateTime.Now.Date && x.HoraInicio == horario.HoraInicio && x.HoraFin == horario.HoraFin).ToList();
+
+                foreach (var horarioDisponible in horariosDisponiblesAEliminar)
+                {
+                    cancha.HorariosDisponibles.Remove(horarioDisponible);
+                }
+
+                await _context.SaveChangesAsync();
             }
-
-            var cancha = await _context.Canchas.Include(x => x.HorariosDisponibles).Where(x => x.Id == CanchaId).FirstAsync();
-
-            var horariosDisponiblesAEliminar = cancha.HorariosDisponibles.Where(x => x.Fecha.Date >= DateTime.Now.Date && x.HoraInicio == horario.HoraInicio && x.HoraFin == horario.HoraFin).ToList();
-
-            foreach(var horarioDisponible in horariosDisponiblesAEliminar)
-            {
-                cancha.HorariosDisponibles.Remove(horarioDisponible);
-            }
-
-            await _context.SaveChangesAsync();
 
             return RedirectToPage();
         }

@@ -7,6 +7,7 @@ using ReservaCanchita.Services.ComidasCategorias;
 using ReservaCanchita.Services.Configuraciones;
 using ReservaCanchita.Services.HorariosDisponibles;
 using ReservaCanchita.Services.MercadoPago;
+using ReservaCanchita.Services.PagosMercadoPago;
 using ReservaCanchita.Services.Utilities;
 using ReservaCanchita.Services.WhatsApp;
 
@@ -26,6 +27,7 @@ builder.Services.AddScoped<HorarioDisponibleServicio>();
 builder.Services.AddHostedService<CambioDiaFondoServicio>();
 builder.Services.AddHttpClient<WhatsAppServicio>();
 builder.Services.AddScoped<MercadoPagoServicio>();
+builder.Services.AddScoped<PagoMercadoPagoServicio>();
 
 MercadoPagoConfig.AccessToken = builder.Configuration["MercadoPago:AccessToken"];
 
