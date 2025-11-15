@@ -86,8 +86,8 @@ namespace ReservaCanchita.Pages
 
             var configuraciones = await _context.Configuraciones.Where(x => x.Campo == "TrabajaConWhatsapp").ToArrayAsync();
             var trabajaConWhatsApp = configuraciones.First(x => x.Campo == "TrabajaConWhatsapp").ValorNumerico == 1;
-            var trabajaConSeña = true;
-            var montoSeña = 1000;
+            var trabajaConSena = true;
+            var montoSena = 1000;
 
             if (trabajaConWhatsApp)
             {
@@ -101,7 +101,7 @@ namespace ReservaCanchita.Pages
             }
             else
             {
-                if (trabajaConSeña)
+                if (trabajaConSena)
                 {
                     var pageUrl = Url.PageLink();
 
@@ -117,7 +117,7 @@ namespace ReservaCanchita.Pages
                     horarioDisponible.EstaReservado = true;
 
                     await _context.SaveChangesAsync();
-                    InitPoint = await _mpService.CrearLinkPagoAsync(montoSeña, reservaActual.Entity.Id, pageUrl!);
+                    InitPoint = await _mpService.CrearLinkPagoAsync(montoSena, reservaActual.Entity.Id, pageUrl!);
 
                     if (InitPoint != null)
                     {
