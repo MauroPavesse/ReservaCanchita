@@ -24,6 +24,10 @@ namespace ReservaCanchita.Pages.Administrador
         [BindProperty] public bool TrabajaConWhatsApp { get; set; } = false;
         [BindProperty] public bool VersionMenuComidas { get; set; } = false;
         [BindProperty] public bool TrabajaConMenuComidas { get; set; } = false;
+        [BindProperty] public bool VersionIncluyeMercadoPago { get; set; } = false; 
+        [BindProperty] public bool TrabajaConSena { get; set; } = false;
+        [BindProperty] public string AliasMercadoPago { get; set; } = string.Empty;
+        [BindProperty] public string AccessTokenMercadoPago { get; set; } = string.Empty;
 
         public async Task OnGet()
         {
@@ -43,6 +47,11 @@ namespace ReservaCanchita.Pages.Administrador
 
             TrabajaConMenuComidas = configuraciones.FirstOrDefault(x => x.Campo == "TrabajaConMenuComidas")?.ValorNumerico == 1;
             VersionMenuComidas = configuraciones.FirstOrDefault(x => x.Campo == "VersionIncluyeMenuComidas")?.ValorNumerico == 1;
+
+            VersionIncluyeMercadoPago = configuraciones.FirstOrDefault(x => x.Campo == "VersionIncluyeMercadoPago")?.ValorNumerico == 1;
+            TrabajaConSena = configuraciones.FirstOrDefault(x => x.Campo == "TrabajaConSena")?.ValorNumerico == 1;
+            AliasMercadoPago = configuraciones.FirstOrDefault(x => x.Campo == "AliasMp")?.ValorString ?? "";
+            AccessTokenMercadoPago = configuraciones.FirstOrDefault(x => x.Campo == "AccessTokenMp")?.ValorString ?? "";
         }
 
         public async Task<IActionResult> OnPost()
@@ -61,7 +70,10 @@ namespace ReservaCanchita.Pages.Administrador
                 new Configuracion { Id = 6, Campo = "HoraToleranciaCancelarReserva", ValorNumerico = HoraToleranciaCancelarReserva ?? 0 },
                 new Configuracion { Id = 7, Campo = "TrabajaConToleranciaCancelarReserva", ValorNumerico = Convert.ToDecimal(TrabajaConToleranciaCancelarReserva) },
                 new Configuracion { Id = 8, Campo = "TrabajaConWhatsapp", ValorNumerico = Convert.ToInt32(TrabajaConWhatsApp) },
-                new Configuracion { Id = 10, Campo = "TrabajaConMenuComidas", ValorNumerico = Convert.ToInt32(TrabajaConMenuComidas) }
+                new Configuracion { Id = 10, Campo = "TrabajaConMenuComidas", ValorNumerico = Convert.ToInt32(TrabajaConMenuComidas) },
+                new Configuracion { Id = 13, Campo = "TrabajaConSena", ValorNumerico = Convert.ToInt32(TrabajaConSena) },
+                new Configuracion { Id = 14, Campo = "AccessTokenMp", ValorString = AccessTokenMercadoPago },
+                new Configuracion { Id = 15, Campo = "AliasMp", ValorString = AliasMercadoPago }
             };
             await configuracionService.GuardarConfiguraciones(configuraciones);
 
