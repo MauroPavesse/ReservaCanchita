@@ -53,6 +53,22 @@
         </div>
     }
 
+    @if (@Model.VersionIncluyeMercadoPago)
+    {
+        <div style="border: solid; border-radius: 10px; padding: 10px; margin-top: 5px">
+            <div>
+                <label>
+                    <input type="checkbox" asp-for="TrabajaConSena" id="trabajaConSenaCheckbox" />
+                    Trabaja con Seña
+                </label>
+            </div>
+            <label>Token de Mercado Pago:</label>
+            <input asp-for="AccessTokenMercadoPago" class="form-control" id="accessTokenMercadoPagoInput" type="text" />
+            <label>Alias de Mercado Pago:</label>
+            <input asp-for="AliasMercadoPago" class="form-control" id="aliasMercadoPagoInput" type="text" />
+        </div>
+    }
+
     <button type="submit" class="btn btn-primary mt-2">Guardar configuración</button>
 </form>
 
@@ -61,27 +77,30 @@
         function toggleInput(checkboxId, inputId) {
             const checkbox = document.getElementById(checkboxId);
             const input = document.getElementById(inputId);
+
+            if (!checkbox || !input) return; // Si no existen, no hacer nada
+
             input.disabled = !checkbox.checked;
         }
 
-        document.getElementById('reservaCheckbox').addEventListener('change', () => {
-            toggleInput('reservaCheckbox', 'reservaInput');
-        });
+        // Función para agregar eventos de forma segura
+        function attachToggle(checkboxId, inputIds) {
+            const checkbox = document.getElementById(checkboxId);
+            if (!checkbox) return;
 
-        document.getElementById('numeroExtraCheckbox').addEventListener('change', () => {
-            toggleInput('numeroExtraCheckbox', 'numeroExtraInput');
-        });
+            checkbox.addEventListener("change", () => {
+                inputIds.forEach(id => toggleInput(checkboxId, id));
+            });
 
-        document.getElementById('whatsAppCheckbox').addEventListener('change', () => {
-            toggleInput('whatsAppCheckbox');
-        });
+            // Inicializar estado
+            inputIds.forEach(id => toggleInput(checkboxId, id));
+        }
 
-        document.getElementById('menuComidasCheckbox').addEventListener('change', () => {
-            toggleInput('menuComidasCheckbox');
-        });
-
-        // Inicializar estado en carga
-        toggleInput('reservaCheckbox', 'reservaInput');
-        toggleInput('numeroExtraCheckbox', 'numeroExtraInput');
+        // Solo estos checkboxes tienen inputs asociados:
+        attachToggle("reservaCheckbox", ["reservaInput"]);
+        attachToggle("numeroExtraCheckbox", ["numeroExtraInput"]);
+        attachToggle("trabajaConSenaCheckbox", ["accessTokenMercadoPagoInput", "aliasMercadoPagoInput"]);
     </script>
 }
+
+

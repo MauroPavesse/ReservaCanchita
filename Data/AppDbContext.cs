@@ -17,4 +17,5 @@ public class AppDbContext : DbContext
     public DbSet<Configuracion> Configuraciones { get; set; }
     public DbSet<ComidaCategoria> ComidasCategorias { get; set; }
     public DbSet<Comida> Comidas { get; set; }
+    public DbSet<PagoMercadoPago> PagosMercadoPago { get; set; }
 }

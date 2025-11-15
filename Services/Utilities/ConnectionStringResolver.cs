@@ -32,6 +32,6 @@ public class ConnectionStringResolver : IConnectionStringResolver
         if (string.IsNullOrEmpty(connString))
             connString = _configuration.GetConnectionString("DefaultConnection");
 
-        return connString;
+        return connString!;
     }
 }

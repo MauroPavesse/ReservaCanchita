@@ -1,3 +1,4 @@
+using MercadoPago.Config;
 using Microsoft.EntityFrameworkCore;
 using ReservaCanchita.Data;
 using ReservaCanchita.Services.Canchas;
@@ -5,6 +6,8 @@ using ReservaCanchita.Services.Comidas;
 using ReservaCanchita.Services.ComidasCategorias;
 using ReservaCanchita.Services.Configuraciones;
 using ReservaCanchita.Services.HorariosDisponibles;
+using ReservaCanchita.Services.MercadoPago;
+using ReservaCanchita.Services.PagosMercadoPago;
 using ReservaCanchita.Services.Utilities;
 using ReservaCanchita.Services.WhatsApp;
 
@@ -15,12 +18,6 @@ builder.Services.AddSession();
 
 builder.Services.AddHttpContextAccessor();
 
-//builder.Services.AddDbContext<AppDbContext>(options =>
-//    options.UseMySql(
-//        builder.Configuration.GetConnectionString("DefaultConnection"),
-//        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
-//    ));
-
 builder.Services.AddScoped<IConnectionStringResolver, ConnectionStringResolver>();
 builder.Services.AddScoped<CanchaServicio>();
 builder.Services.AddScoped<ComidaServicio>();
@@ -29,10 +26,12 @@ builder.Services.AddScoped<ConfiguracionServicio>();
 builder.Services.AddScoped<HorarioDisponibleServicio>();
 builder.Services.AddHostedService<CambioDiaFondoServicio>();
 builder.Services.AddHttpClient<WhatsAppServicio>();
+builder.Services.AddScoped<MercadoPagoServicio>();
+builder.Services.AddScoped<PagoMercadoPagoServicio>();
+
+MercadoPagoConfig.AccessToken = builder.Configuration["MercadoPago:AccessToken"];
 
 builder.Services.AddControllers();
-
-
 
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
@@ -63,14 +62,6 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
-
-/*using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    context.Database.Migrate();
-    ReservaCanchita.Data.DbInitializer.Seed(context);
-}*/
 
 if (!app.Environment.IsDevelopment())
 {
