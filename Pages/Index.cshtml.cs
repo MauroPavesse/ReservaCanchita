@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -115,8 +116,39 @@ namespace ReservaCanchita.Pages
                     horarioDisponible.EstaReservado = true;
 
                     await _context.SaveChangesAsync();
-                    
-                    var response = await _mpService.CrearLinkPagoAsync(montoSena, reservaActual.Entity.Id, Request);
+
+                    var successUrl = Url.Page(
+                        "/MercadoPago/Exito",
+                        null,
+                        null,
+                        Request.Scheme,
+                        Request.Host.ToUriComponent()
+                    );
+                    var failureUrl = Url.Page(
+                        "/MercadoPago/Error",
+                        null,
+                        null,
+                        Request.Scheme,
+                        Request.Host.ToUriComponent()
+                    );
+
+                    var pendingUrl = Url.Page(
+                        "/MercadoPago/Pendiente",
+                        null,
+                        null,
+                        Request.Scheme,
+                        Request.Host.ToUriComponent()
+                    );
+
+                    var notificationUrl = Url.Page(
+                        "/api/mercadopago/notificaciones",
+                        null,
+                        null,
+                        Request.Scheme,
+                        Request.Host.ToUriComponent()
+                    );
+
+                    var response = await _mpService.CrearLinkPagoAsync(successUrl, failureUrl, pendingUrl, notificationUrl, montoSena, reservaActual.Entity.Id, Request);
 
                     if (response.Item1 && response.Item2 != null)
                     {

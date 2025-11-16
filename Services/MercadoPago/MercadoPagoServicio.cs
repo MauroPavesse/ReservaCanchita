@@ -1,4 +1,5 @@
-﻿using MercadoPago.Client.Preference;
+﻿using System.Security.Policy;
+using MercadoPago.Client.Preference;
 using MercadoPago.Config;
 using MercadoPago.Resource.Preference;
 using ReservaCanchita.Services.Configuraciones;
@@ -17,15 +18,11 @@ namespace ReservaCanchita.Services.MercadoPago
             this.configuracionServicio = configuracionServicio;
         }
 
-        public async Task<Tuple<bool, string?>> CrearLinkPagoAsync(decimal monto, int reservaId, HttpRequest httpRequest)
+        public async Task<Tuple<bool, string?>> CrearLinkPagoAsync(string successUrl, string failureUrl, string pendingUrl, string notificationUrl, decimal monto, int reservaId, HttpRequest httpRequest)
         {
             try
             {
-                var successUrl = $"{httpRequest.Scheme}://{httpRequest.Host}/MercadoPago/Exito";
-                var failureUrl = $"{httpRequest.Scheme}://{httpRequest.Host}/MercadoPago/Error";
-                var pendingUrl = $"{httpRequest.Scheme}://{httpRequest.Host}/MercadoPago/Pendiente";
-                var notificationUrl = $"{httpRequest.Scheme}://{httpRequest.Host}/api/mercadopago/notificaciones";
-
+                
                 var config = await configuracionServicio.ObtenerConfiguracion("AccessTokenMp");
                 var accessToken = config.ValorString;
 
