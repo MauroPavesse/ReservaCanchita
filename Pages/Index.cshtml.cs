@@ -140,13 +140,7 @@ namespace ReservaCanchita.Pages
                         Request.Host.ToUriComponent()
                     );
 
-                    var notificationUrl = Url.Page(
-                        "/api/mercadopago/notificaciones",
-                        null,
-                        null,
-                        Request.Scheme,
-                        Request.Host.ToUriComponent()
-                    );
+                    var notificationUrl = $"{Request.Scheme}://{Request.Host}/api/mercadopago/notificaciones";
 
                     var response = await _mpService.CrearLinkPagoAsync(successUrl, failureUrl, pendingUrl, notificationUrl, montoSena, reservaActual.Entity.Id, Request);
 
