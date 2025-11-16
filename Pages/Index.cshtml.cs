@@ -116,15 +116,15 @@ namespace ReservaCanchita.Pages
 
                     await _context.SaveChangesAsync();
                     
-                    InitPoint = await _mpService.CrearLinkPagoAsync(montoSena, reservaActual.Entity.Id, Request);
+                    var response = await _mpService.CrearLinkPagoAsync(montoSena, reservaActual.Entity.Id, Request);
 
-                    if (InitPoint != null)
+                    if (response.Item1 && response.Item2 != null)
                     {
-                        return Redirect(InitPoint);
+                        return Redirect(response.Item2);
                     }
                     else
                     {
-                        return Page();
+                        MensajeError = response.Item2!;
                     }
                 }
                 else

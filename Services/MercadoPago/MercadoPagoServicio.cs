@@ -1,5 +1,6 @@
 ﻿using MercadoPago.Client.Preference;
 using MercadoPago.Config;
+using MercadoPago.Resource.Preference;
 using ReservaCanchita.Services.Configuraciones;
 using ReservaCanchita.Services.PagosMercadoPago;
 
@@ -16,7 +17,7 @@ namespace ReservaCanchita.Services.MercadoPago
             this.configuracionServicio = configuracionServicio;
         }
 
-        public async Task<string?> CrearLinkPagoAsync(decimal monto, int reservaId, HttpRequest httpRequest)
+        public async Task<Tuple<bool, string?>> CrearLinkPagoAsync(decimal monto, int reservaId, HttpRequest httpRequest)
         {
             try
             {
@@ -65,12 +66,12 @@ namespace ReservaCanchita.Services.MercadoPago
                     DateCreated = preference.DateCreated ?? DateTime.UtcNow
                 });
 
-                return preference.InitPoint;
+                return new Tuple<bool, string>(true, preference.InitPoint)!;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error creando link de pago: {ex.Message}");
-                return null;
+                return new Tuple<bool, string>(false, ex.Message)!;
             }
         }
 
