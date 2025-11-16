@@ -29,8 +29,6 @@ builder.Services.AddHttpClient<WhatsAppServicio>();
 builder.Services.AddScoped<MercadoPagoServicio>();
 builder.Services.AddScoped<PagoMercadoPagoServicio>();
 
-MercadoPagoConfig.AccessToken = builder.Configuration["MercadoPago:AccessToken"];
-
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>

@@ -103,8 +103,6 @@ namespace ReservaCanchita.Pages
             {
                 if (trabajaConSena)
                 {
-                    var pageUrl = Url.PageLink();
-
                     var reservaActual = _context.Reservas.Add(new Reserva()
                     {
                         NombreCliente = NombreCliente,
@@ -117,7 +115,8 @@ namespace ReservaCanchita.Pages
                     horarioDisponible.EstaReservado = true;
 
                     await _context.SaveChangesAsync();
-                    InitPoint = await _mpService.CrearLinkPagoAsync(montoSena, reservaActual.Entity.Id, pageUrl!);
+                    
+                    InitPoint = await _mpService.CrearLinkPagoAsync(montoSena, reservaActual.Entity.Id, Request);
 
                     if (InitPoint != null)
                     {

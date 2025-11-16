@@ -1,4 +1,6 @@
 ﻿using MercadoPago.Client.Preference;
+using MercadoPago.Config;
+using ReservaCanchita.Services.Configuraciones;
 using ReservaCanchita.Services.PagosMercadoPago;
 
 namespace ReservaCanchita.Services.MercadoPago
@@ -6,20 +8,27 @@ namespace ReservaCanchita.Services.MercadoPago
     public class MercadoPagoServicio
     {
         private readonly PagoMercadoPagoServicio pagoMercadoPagoServicio;
+        private readonly ConfiguracionServicio configuracionServicio;
 
-        public MercadoPagoServicio(PagoMercadoPagoServicio pagoMercadoPagoServicio)
+        public MercadoPagoServicio(PagoMercadoPagoServicio pagoMercadoPagoServicio, ConfiguracionServicio configuracionServicio)
         {
             this.pagoMercadoPagoServicio = pagoMercadoPagoServicio;
+            this.configuracionServicio = configuracionServicio;
         }
 
-        public async Task<string?> CrearLinkPagoAsync(decimal monto, int reservaId, string pageUrl)
+        public async Task<string?> CrearLinkPagoAsync(decimal monto, int reservaId, HttpRequest httpRequest)
         {
             try
             {
-                var successUrl = pageUrl + "/MercadoPago/Exito";
-                var failureUrl = pageUrl + "/MercadoPago/Error";
-                var pendingUrl = pageUrl + "/MercadoPago/Pendiente";
-                var notificationUrl = pageUrl + "/api/mercadopago/notificaciones";
+                var successUrl = $"{httpRequest.Scheme}://{httpRequest.Host}/MercadoPago/Exito";
+                var failureUrl = $"{httpRequest.Scheme}://{httpRequest.Host}/MercadoPago/Error";
+                var pendingUrl = $"{httpRequest.Scheme}://{httpRequest.Host}/MercadoPago/Pendiente";
+                var notificationUrl = $"{httpRequest.Scheme}://{httpRequest.Host}/api/mercadopago/notificaciones";
+
+                var config = await configuracionServicio.ObtenerConfiguracion("AccessTokenMp");
+                var accessToken = config.ValorString;
+
+                MercadoPagoConfig.AccessToken = accessToken;
 
                 var request = new PreferenceRequest
                 {
